@@ -4,12 +4,15 @@ services:
   frontend:
     build:
       context: ./frontend
-    environment:
-      - EC2_IP=${EC2_IP}
     ports:
       - "3000:80"
     container_name: api-frontend
     restart: unless-stopped
+    depends_on:
+      - user-management-go
+      - todo-app
+      - notes-app
+      - bedrock-app
 
   user-management-go:
     build:

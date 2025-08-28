@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes-service
+  template:
+    metadata:
+      labels:
+        app: notes-service
+    spec:
+      containers:
+        - name: notes-service
+          image: yaswanthmitta/multiapp-notes-app:latest
+          ports:
+            - containerPort: 5002
+          env:
+            - name: DB_HOST
+              value: notes-db
+            - name: DB_PORT
+              value: "27017"

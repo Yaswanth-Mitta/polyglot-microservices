@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: yaswanthmitta/multiapp-user-management-go:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: user-db
+            - name: DB_PORT
+              value: "27017"

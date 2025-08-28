@@ -575,14 +575,13 @@
 
     <script>
         // Replace with your actual public IP
-        const BASE_IP = '__BASE_IP_PLACEHOLDER__'; 
-        
-        const API_ENDPOINTS = {
-            contacts: `http://${BASE_IP}:5000/contacts`,
-            todos: `http://${BASE_IP}:5001/todos`,
-            notes: `http://${BASE_IP}:5002/notes`,
-            cheatsheet: `http://${BASE_IP}:5005/cheatsheet` 
-        };
+// No need for BASE_IP anymore, Nginx will handle routing
+const API_ENDPOINTS = {
+    contacts: `/api/users/contacts`,   // goes to user-management-go
+    todos: `/api/todo/todos`,          // goes to todo-app
+    notes: `/api/notes/notes`,         // goes to notes-app
+    cheatsheet: `/api/bedrock/cheatsheet` // goes to bedrock-app
+};
 
         // Utility functions
         function showMessage(elementId, message, type = 'success') {

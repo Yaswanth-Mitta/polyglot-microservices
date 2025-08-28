@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bedrock-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bedrock-app
+  template:
+    metadata:
+      labels:
+        app: bedrock-app
+    spec:
+      containers:
+        - name: bedrock-app
+          image: yaswanthmitta/multiapp-bedrock-app:latest
+          ports:
+            - containerPort: 5005
+          envFrom:
+            - secretRef:
+                name: bedrock-secrets
