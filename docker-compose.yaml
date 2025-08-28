@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - EC2_IP=${EC2_IP}
+    ports:
+      - "3000:80"
+    container_name: api-frontend
+    restart: unless-stopped
+
+  user-management-go:
+    build:
+      context: ./backend/user-management-go
+    ports:
+      - "5000:5000"
+    container_name: user-management-go
+    restart: unless-stopped
+    depends_on:
+      user-db:
+        condition: service_healthy
+
+  todo-app:
+    build:
+      context: ./backend/todo-app
+    ports:
+      - "5001:5001"
+    container_name: todo-app
+    restart: unless-stopped
+    depends_on:
+      todo-db:
+        condition: service_healthy
+
+  notes-app:
+    build:
+      context: ./backend/notes-app
+    ports:
+      - "5002:5002"
+    container_name: notes-app
+    restart: unless-stopped
+    depends_on:
+      notes-db:
+        condition: service_healthy
+
+  bedrock-app:
+    build:
+      context: ./bedrock-app
+    ports:
+      - "5005:5005"
+    container_name: bedrock-app
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    restart: unless-stopped
+
+  user-db:
+    image: mongo:latest
+    container_name: user-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - user-db-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  todo-db:
+    image: mongo:latest
+    container_name: todo-db
+    ports:
+      - "27019:27017"
+    volumes:
+      - todo-db-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  notes-db:
+    image: mongo:latest
+    container_name: notes-db
+    ports:
+      - "27018:27017"
+    volumes:
+      - notes-db-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  user-db-data:
+  todo-db-data:
+  notes-db-data:
+

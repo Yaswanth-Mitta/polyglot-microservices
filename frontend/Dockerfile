@@ -1,13 +1,11 @@
-FROM nginx:alpine
+FROM nginx:stable-alpine
 
-# Copy the HTML file to nginx html directory
-COPY index.html /usr/share/nginx/html/
+# copy frontend build output into nginx html folder
+COPY . /usr/share/nginx/html
 
-# Copy custom nginx configuration (optional, for CORS and routing)
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose port 80
+# expose nginx default port
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# replace placeholder with EC2_IP env var at container startup
+CMD sh -c "sed -i 's|__BASE_IP_PLACEHOLDER__|${EC2_IP}|g' /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
+
