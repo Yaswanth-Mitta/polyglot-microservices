@@ -8,21 +8,30 @@ data:
     http {
       server {
         listen 80;
+
+        # Serve static frontend files
         location / {
           root /usr/share/nginx/html;
           index index.html;
+          try_files $uri $uri/ /index.html;
         }
-        location /users/ {
+
+        # API reverse proxy routes
+        location /api/users/ {
           proxy_pass http://user-service:5000/;
         }
-        location /todo/ {
+
+        location /api/todo/ {
           proxy_pass http://todo-service:5001/;
         }
-        location /notes/ {
+
+        location /api/notes/ {
           proxy_pass http://notes-service:5002/;
         }
-        location /bedrock/ {
+
+        location /api/bedrock/ {
           proxy_pass http://bedrock-service:5005/;
         }
       }
     }
+
