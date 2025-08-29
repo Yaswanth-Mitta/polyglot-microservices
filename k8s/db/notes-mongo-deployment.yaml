@@ -22,4 +22,6 @@ spec:
               mountPath: /data/db
       volumes:
         - name: mongo-storage
-          emptyDir: {}
+          hostPath:
+            path: /home/ubuntu/data/notes
+            type: DirectoryOrCreate
