@@ -1,0 +1,6 @@
+# Exclude the Docker build files themselves
+Dockerfile
+.dockerignore
+
+# Exclude documentation files
+*.md
