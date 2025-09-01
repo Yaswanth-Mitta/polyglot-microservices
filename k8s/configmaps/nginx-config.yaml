@@ -9,14 +9,12 @@ data:
       server {
         listen 80;
 
-        # Serve static frontend files
         location / {
           root /usr/share/nginx/html;
           index index.html;
           try_files $uri $uri/ /index.html;
         }
 
-        # API reverse proxy routes
         location /api/users/ {
           proxy_pass http://user-service:5000/;
         }
@@ -34,4 +32,3 @@ data:
         }
       }
     }
-
