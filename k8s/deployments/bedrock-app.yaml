@@ -20,8 +20,15 @@ spec:
           envFrom:
             - secretRef:
                 name: bedrock-secrets
-          resources:
-            limits:
-              memory: "100Mi"
-            requests:
-              memory: "50Mi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5005
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5005
+            initialDelaySeconds: 5
+            periodSeconds: 10

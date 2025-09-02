@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 import os
+import time
 
 app = Flask(__name__)
 CORS(app)
@@ -11,14 +12,29 @@ CORS(app)
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://notes-db:27017/")
 DB_NAME = "notes_db"
 
+def init_db():
+    """Initializes the MongoDB client and verifies connection."""
+    retries = 10
+    while retries > 0:
+        try:
+            client = MongoClient(MONGO_URI)
+            # The ping command is a lightweight way to check the connection.
+            client.admin.command('ping')
+            print("✅ Connected to MongoDB.")
+            return client
+        except Exception as e:
+            print(f"⚠️ DB not ready yet: {e}")
+            retries -= 1
+            time.sleep(5)
+    raise Exception("❌ Could not connect to database after several retries.")
+
 try:
-    client = MongoClient(MONGO_URI)
+    client = init_db()
     db = client[DB_NAME]
     notes_collection = db["notes"]
     print(f"✅ Connected to MongoDB database '{DB_NAME}' successfully.")
 except Exception as e:
     print(f"❌ Error connecting to MongoDB: {e}")
-
 
 @app.route("/notes", methods=["POST"])
 def create_note():
@@ -88,11 +104,10 @@ def delete_note(note_id):
     return jsonify({"message": "Note deleted successfully"})
 
 
-@app.route("/health", methods=["GET"])
+@app.route("/healthz", methods=["GET"])
 def health_check():
     return jsonify({"status": "ok"}), 200
 
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002, debug=True)
-

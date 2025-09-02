@@ -116,5 +116,10 @@ def delete_todo(todo_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Health check endpoint for Kubernetes probes
+@app.route('/healthz', methods=['GET'])
+def health_check():
+    return jsonify({"status": "ok"}), 200
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)
