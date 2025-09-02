@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: todo-db
+  name: notes-db
 spec:
-  serviceName: "todo-db"
+  serviceName: "notes-db"
   replicas: 1
   selector:
     matchLabels:
-      app: todo-db
+      app: notes-db
   template:
     metadata:
       labels:
-        app: todo-db
+        app: notes-db
     spec:
       containers:
-        - name: todo-db
+        - name: notes-db
           image: mongo:latest
           ports:
             - containerPort: 27017
@@ -29,3 +29,5 @@ spec:
         resources:
           requests:
             storage: 1Gi
+        storageClassName: manual
+

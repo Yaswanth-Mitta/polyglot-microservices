@@ -22,8 +22,15 @@ spec:
               value: user-db
             - name: DB_PORT
               value: "27017"
-          resources:
-            limits:
-              memory: "100Mi"
-            requests:
-              memory: "50Mi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
