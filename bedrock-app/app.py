@@ -55,5 +55,11 @@ def generate_cheatsheet():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Health check endpoint for Kubernetes probes
+@app.route('/healthz', methods=['GET'])
+def health_check():
+    # You can add a check for the Bedrock client connection here for a more robust health check
+    return jsonify({"status": "ok"}), 200
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5005)
+    app.run(host="0.0.0.0", port=5005, debug=True)
