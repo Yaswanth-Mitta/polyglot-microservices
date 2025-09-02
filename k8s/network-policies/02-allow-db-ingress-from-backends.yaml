@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-notes-service-to-notes-db
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: notes-db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: notes-service
+    ports:
+    - protocol: TCP
+      port: 27017
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-todo-service-to-todo-db
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: todo-db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: todo-service
+    ports:
+    - protocol: TCP
+      port: 27017
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-user-service-to-user-db
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: user-db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: user-service
+    ports:
+    - protocol: TCP
+      port: 27017
+

@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backends
+  namespace: default
+spec:
+  podSelector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values: ["notes-service", "todo-service", "user-service", "bedrock-app"]
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 5000
+    - protocol: TCP
+      port: 5001
+    - protocol: TCP
+      port: 5002
+    - protocol: TCP
+      port: 5005
+
