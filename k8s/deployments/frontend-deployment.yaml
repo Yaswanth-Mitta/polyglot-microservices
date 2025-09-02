@@ -21,6 +21,11 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
+          resources:
+            limits:
+              memory: "100Mi"
+            requests:
+              memory: "50Mi"
       volumes:
         - name: nginx-config
           configMap:
