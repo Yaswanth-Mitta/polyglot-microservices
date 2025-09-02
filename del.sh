@@ -4,7 +4,7 @@ echo "--- Deleting all Kubernetes resources from k8s/ directory recursively (Pas
 kubectl delete -f k8s/ --recursive
 
 echo "--- Waiting for resources to terminate... (Sleeping for 10 seconds) ---"
-sleep 10
+sleep 3
 
 echo "--- Deleting all Kubernetes resources from k8s/ directory recursively (Pass 2) ---"
 kubectl delete -f k8s/ --recursive
