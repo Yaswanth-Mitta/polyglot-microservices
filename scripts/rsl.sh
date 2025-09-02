@@ -1,13 +1,17 @@
 #!/bin/bash
 
-# Define the directory where the deployments are located
+# Define the directory for Kubernetes deployments
 DEPLOYMENTS_DIR="k8s/deployments"
 
-# --- Add Probes to Deployment files ---
+echo "--- Deleting old backend deployment manifests with resource limits ---"
+rm -f "$DEPLOYMENTS_DIR/bedrock-app.yaml"
+rm -f "$DEPLOYMENTS_DIR/notes-service.yaml"
+rm -f "$DEPLOYMENTS_DIR/todo-service.yaml"
+rm -f "$DEPLOYMENTS_DIR/user-service.yaml"
 
-echo "Adding Liveness and Readiness Probes to deployment manifests..."
+echo "--- Creating new backend deployment manifests with resource limits ---"
 
-# Deployment for bedrock-app
+# Deployment for bedrock-app with resource limits
 cat > "$DEPLOYMENTS_DIR/bedrock-app.yaml" << EOF
 apiVersion: apps/v1
 kind: Deployment
@@ -43,9 +47,16 @@ spec:
               port: 5005
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
 EOF
 
-# Deployment for notes-service
+# Deployment for notes-service with resource limits
 cat > "$DEPLOYMENTS_DIR/notes-service.yaml" << EOF
 apiVersion: apps/v1
 kind: Deployment
@@ -83,9 +94,16 @@ spec:
               port: 5002
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
 EOF
 
-# Deployment for todo-service
+# Deployment for todo-service with resource limits
 cat > "$DEPLOYMENTS_DIR/todo-service.yaml" << EOF
 apiVersion: apps/v1
 kind: Deployment
@@ -123,9 +141,16 @@ spec:
               port: 5001
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
 EOF
 
-# Deployment for user-service
+# Deployment for user-service with resource limits
 cat > "$DEPLOYMENTS_DIR/user-service.yaml" << EOF
 apiVersion: apps/v1
 kind: Deployment
@@ -163,50 +188,14 @@ spec:
               port: 5000
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
 EOF
 
-# Deployment for frontend-deployment
-cat > "$DEPLOYMENTS_DIR/frontend-deployment.yaml" << EOF
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: frontend
-  template:
-    metadata:
-      labels:
-        app: frontend
-    spec:
-      containers:
-        - name: frontend
-          image: yaswanthmitta/multiapp-frontend:latest
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - name: nginx-config
-              mountPath: /etc/nginx/nginx.conf
-              subPath: nginx.conf
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 80
-            initialDelaySeconds: 15
-            periodSeconds: 20
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
-      volumes:
-        - name: nginx-config
-          configMap:
-            name: nginx-config
-EOF
-
-echo "✅ All deployment manifests in the '$DEPLOYMENTS_DIR' folder have been updated with probes."
+echo "✅ All specified backend deployment manifests have been updated with resource limits in the '$DEPLOYMENTS_DIR' folder."
 echo "You can now re-apply them using: kubectl apply -f $DEPLOYMENTS_DIR/"

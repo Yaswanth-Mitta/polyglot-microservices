@@ -32,3 +32,10 @@ spec:
               port: 5005
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
