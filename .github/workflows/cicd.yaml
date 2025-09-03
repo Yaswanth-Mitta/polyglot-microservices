@@ -1,0 +1,103 @@
+# .github/workflows/ci-cd-pipeline.yml
+
+name: Polyglot CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_REPO: "yaswanthmitta"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.0
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # --- Static Analysis and Linting (Continue on error) ---
+      - name: CILinting (Python)
+        run: |
+          pip install flake8
+          flake8 ./backend/notes-app ./backend/todo-app ./bedrock-app
+        continue-on-error: true
+
+      - name: CILinting (Go)
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+          golangci-lint run ./backend/user-management-go/...
+        continue-on-error: true
+
+      - name: SAST (Static Analysis - Python)
+        run: |
+          pip install bandit
+          bandit -r ./backend/notes-app ./backend/todo-app ./bedrock-app
+        continue-on-error: true
+
+      - name: SAST (Static Analysis - Go)
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec ./backend/user-management-go/...
+        continue-on-error: true
+
+      - name: SCA (Software Component Analysis)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          output: 'trivy-results.json'
+          scanners: 'vuln,secret,misconfig'
+          continue-on-error: true
+
+      # --- Build and Test ---
+      - name: Run Unit Tests (Go)
+        run: |
+          go test -v ./backend/user-management-go/...
+        continue-on-error: true
+
+      - name: Run Unit Tests (Python)
+        run: |
+          echo "Running Python unit tests (placeholder)..."
+          # python -m unittest discover ./backend/notes-app
+        continue-on-error: true
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Set image tag using GITHUB_SHA
+        id: set_image_tag
+        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Build and push all Docker images
+        run: |
+          echo "Building and pushing all images as per Dockerfiles in each directory..."
+          docker build -t ${{ env.DOCKER_REPO }}/multiapp-frontend:latest ./frontend
+          docker build -t ${{ env.DOCKER_REPO }}/multiapp-user-management-go:latest ./backend/user-management-go
+          docker build -t ${{ env.DOCKER_REPO }}/multiapp-todo-app:latest ./backend/todo-app
+          docker build -t ${{ env.DOCKER_REPO }}/multiapp-notes-app:latest ./backend/notes-app
+          docker build -t ${{ env.DOCKER_REPO }}/multiapp-bedrock-app:latest ./bedrock-app
+
+          docker push ${{ env.DOCKER_REPO }}/multiapp-frontend:latest
+          docker push ${{ env.DOCKER_REPO }}/multiapp-user-management-go:latest
+          docker push ${{ env.DOCKER_REPO }}/multiapp-todo-app:latest
+          docker push ${{ env.DOCKER_REPO }}/multiapp-notes-app:latest
+          docker push ${{ env.DOCKER_REPO }}/multiapp-bedrock-app:latest
